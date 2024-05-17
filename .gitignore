@@ -9,6 +9,8 @@ __pycache__/
 .env
 env/
 venv/
+myenv/
+
 *.egg-info/
 dist/
 build/

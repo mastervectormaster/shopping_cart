@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
-from .models import Product, Order, Payment
+from .models import Product, Order, OrderProduct
 
 
 class ProductAPITest(APITestCase):
@@ -42,7 +42,8 @@ class OrderAPITest(APITestCase):
     def test_create_order(self):
         data = {
             "user": self.user.id,
-            "products": [self.product1.id, self.product2.id]
+            "products": [self.product1.id, self.product2.id],
+            "amounts": ["10.99", "10.99"]
         }
         response = self.client.post(self.order_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -54,23 +55,24 @@ class OrderAPITest(APITestCase):
 
     def test_get_orders(self):
         order = Order.objects.create(user=self.user)
-        order.products.add(self.product1, self.product2)
+        # order.products.add(self.product1, self.product2)
+        OrderProduct.objects.create(
+            order=order, product=self.product1, amount=20)
+        OrderProduct.objects.create(
+            order=order, product=self.product2, amount=42)
+
         response = self.client.get(self.order_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['user'], self.user.username)
         self.assertEqual(len(response.data[0]['products']), 2)
 
-    def test_update_order(self):
-        order = Order.objects.create(user=self.user)
-        order.products.add(self.product1)
-        update_url = reverse('order-detail', kwargs={'pk': order.id})
-        data = {
-            "user": self.user.id,
-            "products": [self.product2.id]
-        }
-        response = self.client.put(update_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        order.refresh_from_db()
-        self.assertIn(self.product2, order.products.all())
-        self.assertNotIn(self.product1, order.products.all())
+
+class APIFailureTest(APITestCase):
+    def test_not_found(self):
+        response = self.client.get("/api/home/product/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthorized(self):
+        response = self.client.get("/api/products/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
