@@ -28,6 +28,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ### 3. Install Dependencies
 
 ```bash
+pip freeze > requirements.txt
 pip install -r requirements.txt
 ```
 
@@ -83,4 +84,3 @@ python manage.py test
 - [Django Documentation](https://docs.djangoproject.com/en/stable/)
 - [Django REST Framework Documentation](https://www.django-rest-framework.org/)
 - [Postman Documentation](https://learning.postman.com/docs/getting-started/introduction/)
-
