@@ -111,13 +111,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-SIMPLE_JWT = {
-    # Adjust the expiration time as needed
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    # Adjust the expiration time as needed
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -139,3 +132,10 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SIMPLE_JWT = {
+    # Adjust the expiration time as needed
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # Adjust the expiration time as needed
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}

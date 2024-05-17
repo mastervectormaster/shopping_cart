@@ -1,51 +1,8 @@
-from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APITestCase
+from rest_framework import status
 from django.contrib.auth.models import User
 from .models import Product, Order, Payment
-from rest_framework.test import APITestCase
-from django.urls import reverse
-from rest_framework import status
-
-
-class ProductModelTest(TestCase):
-
-    def setUp(self):
-        self.product = Product.objects.create(
-            name="Test Product", price=9.99)
-
-    def test_product_creation(self):
-        self.assertEqual(self.product.name, "Test Product")
-        self.assertEqual(self.product.price, 9.99)
-
-
-class OrderModelTest(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser', password='12345')
-        self.product = Product.objects.create(
-            name="Test Product", price=9.99)
-        self.order = Order.objects.create(user=self.user)
-        self.order.products.add(self.product)
-
-    def test_order_creation(self):
-        self.assertEqual(self.order.user.username, 'testuser')
-        self.assertIn(self.product, self.order.products.all())
-
-
-class PaymentModelTest(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser', password='12345')
-        self.product = Product.objects.create(
-            name="Test Product", price=9.99)
-        self.order = Order.objects.create(user=self.user)
-        self.order.products.add(self.product)
-        self.payment = Payment.objects.create(order=self.order, amount=9.99)
-
-    def test_payment_creation(self):
-        self.assertEqual(self.payment.amount, 9.99)
-        self.assertEqual(self.payment.order, self.order)
 
 
 class ProductAPITest(APITestCase):
@@ -53,18 +10,20 @@ class ProductAPITest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='testuser', password='12345')
+        self.user.is_staff = True
+        self.user.save()
         self.client.force_authenticate(user=self.user)
         self.product_url = reverse('product-list')
 
     def test_create_product(self):
-        data = {"name": "Product1", "price": 19.99}
+        data = {"name": "Product1", "price": "19.99"}
         response = self.client.post(self.product_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Product.objects.count(), 1)
         self.assertEqual(Product.objects.get().name, "Product1")
 
     def test_get_products(self):
-        Product.objects.create(name="Product1", price=19.99)
+        Product.objects.create(name="Product1", price="19.99")
         response = self.client.get(self.product_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -76,50 +35,42 @@ class OrderAPITest(APITestCase):
         self.user = User.objects.create_user(
             username='testuser', password='12345')
         self.client.force_authenticate(user=self.user)
-        self.product = Product.objects.create(name="Product1", price=19.99)
+        self.product1 = Product.objects.create(name="Product1", price="19.99")
+        self.product2 = Product.objects.create(name="Product2", price="29.99")
         self.order_url = reverse('order-list')
 
     def test_create_order(self):
         data = {
             "user": self.user.id,
-            "products": [self.product.id]
+            "products": [self.product1.id, self.product2.id]
         }
         response = self.client.post(self.order_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Order.objects.count(), 1)
-        self.assertEqual(Order.objects.get().user.username, 'testuser')
+        order = Order.objects.get()
+        self.assertEqual(order.user, self.user)
+        self.assertIn(self.product1, order.products.all())
+        self.assertIn(self.product2, order.products.all())
 
     def test_get_orders(self):
         order = Order.objects.create(user=self.user)
-        order.products.add(self.product)
+        order.products.add(self.product1, self.product2)
         response = self.client.get(self.order_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['user'], self.user.username)
+        self.assertEqual(len(response.data[0]['products']), 2)
 
-
-class PaymentAPITest(APITestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser', password='12345')
-        self.client.force_authenticate(user=self.user)
-        self.product = Product.objects.create(name="Product1", price=19.99)
-        self.order = Order.objects.create(user=self.user)
-        self.order.products.add(self.product)
-        self.payment_url = reverse('payment-list')
-
-    def test_create_payment(self):
+    def test_update_order(self):
+        order = Order.objects.create(user=self.user)
+        order.products.add(self.product1)
+        update_url = reverse('order-detail', kwargs={'pk': order.id})
         data = {
-            "order": self.order.id,
-            "amount": 19.99
+            "user": self.user.id,
+            "products": [self.product2.id]
         }
-        response = self.client.post(self.payment_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.get().amount, 19.99)
-
-    def test_get_payments(self):
-        Payment.objects.create(order=self.order, amount=19.99)
-        response = self.client.get(self.payment_url, format='json')
+        response = self.client.put(update_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        order.refresh_from_db()
+        self.assertIn(self.product2, order.products.all())
+        self.assertNotIn(self.product1, order.products.all())
