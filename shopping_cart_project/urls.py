@@ -1,5 +1,5 @@
 """
-URL configuration for shop_management project.
+URL configuration for shopping_cart_project project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -19,5 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('shop/', include('shopping_cart.urls')),
+    path('api/', include('shopping_cart.urls')),
 ]
+
+
