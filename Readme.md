@@ -2,7 +2,7 @@
 
 ### 1. **User Signup**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/users/signup/`  
 **Headers**: None  
 **Body**:
@@ -17,7 +17,7 @@
 
 ### 2. **User Login**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/token/`  
 **Headers**: None  
 **Body**:
@@ -40,7 +40,7 @@
 
 ### 3. **Change Email**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/users/change_email/`  
 **Headers**:
 
@@ -55,7 +55,7 @@
 
 ### 4. **Change Password**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/users/change_password/`  
 **Headers**:
 
@@ -70,7 +70,7 @@
 
 ### 5. **Add Product (Admin Only)**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/products/`  
 **Headers**:
 
@@ -87,7 +87,7 @@
 
 ### 6. **Update Product (Admin Only)**
 
-**Request Type**: PUT  
+**Http Method Type**: PUT  
 **URL**: `http://127.0.0.1:8000/api/products/{product_id}/`  
 **Headers**:
 
@@ -104,7 +104,7 @@
 
 ### 7. **Increase Product Amount (Admin Only)**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/products/{product_id}/increase_amount/`  
 **Headers**:
 
@@ -119,7 +119,7 @@
 
 ### 8. **Create Order**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/orders/`  
 **Headers**:
 
@@ -134,7 +134,7 @@
 
 ### 9. **Add Product to Order**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/orders/{order_id}/add_product/`  
 **Headers**:
 
@@ -149,7 +149,7 @@
 
 ### 10. **Remove Product from Order**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/orders/{order_id}/remove_product/`  
 **Headers**:
 
@@ -164,7 +164,7 @@
 
 ### 11. **Cancel Order**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/orders/{order_id}/cancel/`  
 **Headers**:
 
@@ -172,7 +172,7 @@
 
 ### 12. **Initiate Payment**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/payments/`  
 **Headers**:
 
@@ -188,7 +188,7 @@
 
 ### 13. **Finalize Payment**
 
-**Request Type**: POST  
+**Http Method Type**: POST  
 **URL**: `http://127.0.0.1:8000/api/payments/{payment_id}/finalize/`  
 **Headers**:
 
@@ -296,3 +296,66 @@ Make sure to replace `{product_id}`, `{order_id}`, and `{payment_id}` with the a
   - Each payment is associated with a single order, indicated by the `order` field.
   - The `amount` field represents the total amount paid for the order.
   - The `status` field indicates the current status of the payment, with a default value of 'initiated'.
+
+#### Detailed description about the whole development process
+
+### 1. Designing the Data Model:
+
+- **Identified Main Entities:**
+
+  - Recognized the core entities necessary for an e-commerce platform, including Products, Orders, Payments, and Users, based on the requirements.
+
+- **Determined Relationships:**
+
+  - Established the relationships between entities, such as a many-to-many relationship between Products and Orders to allow multiple products in one order, and a one-to-one relationship between Orders and Payments to ensure each order has a corresponding payment.
+
+- **Defined Fields:**
+
+  - Specified the fields and attributes for each entity, considering the information needed to support the business requirements. For example, for Products, fields like Name, Price, and Amount were defined.
+
+- **Leveraged Django ORM:**
+  - Utilized Django's Object-Relational Mapping (ORM) to define the data model, taking advantage of Django's built-in features for managing database relationships, ensuring data integrity, and simplifying database operations.
+
+### 2. Integrating Business Logic:
+
+- **Implemented Logic:**
+
+  - Developed the necessary business logic to support key operations such as creating orders, updating product quantities, and processing payments. This logic was designed to meet the functional requirements of the e-commerce platform and ensure smooth operation.
+
+- **Ensured Data Consistency:**
+
+  - Implemented checks and constraints within the business logic to ensure data consistency and validation. For example, when creating an order, checks were performed to verify the availability of products and update their quantities accordingly.
+
+- **Authentication and Access Control:**
+  - Integrated Django's authentication system to authenticate users and control access to various parts of the application based on user roles and permissions. This included restricting access to certain endpoints and operations to authenticated users only.
+
+### 3. Implementing the API:
+
+- **Designed CRUD Endpoints:**
+
+  - Defined API endpoints for performing CRUD (Create, Read, Update, Delete) operations on resources such as Products, Orders, and Payments using Django REST Framework (DRF).
+
+- **Serialization and Deserialization:**
+
+  - Utilized DRF serializers to convert data between JSON format and Python objects, ensuring smooth data exchange between the client and the server.
+
+- **Viewsets and Routers:**
+
+  - Used DRF's viewsets and routers to automatically generate URL patterns for CRUD operations on resources, reducing boilerplate code and simplifying API development.
+
+- **Authentication and Permissions:**
+  - Configured authentication and permissions settings within the API to enforce access control and ensure that only authorized users can access certain endpoints or perform specific actions.
+
+### 4. Challenges Faced and Decisions Made:
+
+- **Complex Relationships:**
+
+  - Faced challenges in managing complex relationships between entities, such as many-to-many and one-to-one relationships. Decisions were made to leverage Django's ORM capabilities and DRF serializers to handle these relationships effectively.
+
+- **Data Integrity and Security:**
+
+  - Addressed challenges related to ensuring data integrity and security, particularly when handling sensitive information such as user authentication tokens and payment details. Decisions were made to implement best practices, including encryption, token-based authentication, and role-based access control.
+
+- **Performance Optimization:**
+
+  - Focused on optimizing the performance of the API, especially in scenarios involving large datasets or high concurrency. This involved implementing caching mechanisms, pagination, and optimizing database queries to improve response times and scalability.
