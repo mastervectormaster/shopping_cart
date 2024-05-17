@@ -14,8 +14,8 @@ This project is built using Django with SQLite as the database and Django REST F
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ambitious922/shopping_cart_django.git
-cd shopping_cart_django
+git clone https://github.com/mastervectormaster/shopping_cart.git
+cd shopping_cart
 ```
 
 ### 2. Create and Activate a Virtual Environment
@@ -28,7 +28,6 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ### 3. Install Dependencies
 
 ```bash
-pip freeze > requirements.txt
 pip install -r requirements.txt
 ```
 
@@ -67,17 +66,6 @@ End-to-end tests are written in the `tests.py` file. To run the tests, use the f
 ```bash
 python manage.py test
 ```
-
-## Project Structure
-
-- `manage.py`: Command-line utility for administrative tasks.
-- `shopping_cart_project/settings.py`: Contains project settings.
-- `shopping_cart_project/urls.py`: Contains URL declarations.
-- `<app_name>/models.py`: Contains database models.
-- `shopping_cart/views.py`: Contains view logic.
-- `shopping_cart/serializers.py`: Contains serializers for API data.
-- `shopping_cart/urls.py`: Contains URL declarations for the app.
-- `shopping_cart/tests.py`: Contains end-to-end tests.
 
 ## Useful Links
 
